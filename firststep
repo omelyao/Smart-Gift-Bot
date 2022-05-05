@@ -1,0 +1,52 @@
+import telebot
+from telebot import types
+
+bot = telebot.TeleBot('5309891451:AAGj04W4O3aBVEBqgW-GgWaAfOm66ncucTo')
+
+#@bot.message_handler()
+#def online(message):
+#   bot.send_message(message.chat.id, 'Приветствуем тебя в Smart Gift Bot, это бот способный с помощью нейросети подобрать идеальный подарок для ваших друзей и близких, напишите /start, чтобы начать')
+
+@bot.message_handler(commands=['start'])
+def start(message):
+    mess = 'Приветствуем вас в Smart Gift Bot, если вы хотите подарить что-то своему другу, родственнику, знакомому, ' \
+           'но не знаете что, тогда вы попали по адресу,чтобы начать выбор подарка с помощью  нейросети введите в ' \
+           'чат:    /gift                                                                                                         Также доступны команды: /help - помощь /settings -настройки '
+
+    bot.send_message(message.chat.id, mess, parse_mode='html')
+
+@bot.message_handler(commands=['help'])
+def help(message):
+    help = 'Приветствуем вас в Smart Gift Bot, если вдруг у вас появились какие-то дополнительные вопросы по нашему проекту, вам следует написать нам на почту: ryt999@mail.ru'
+    bot.send_message(message.chat.id, help, parse_mode='html')
+
+@bot.message_handler(commands=['settings'])
+def settings(message):
+    settings = 'Приветствуем вас в Smart Gift Bot, если вдруг у вас появились какие-то дополнительные вопросы по нашему проекту, вам следует написать нам на почту: ryt999@mail.ru'
+    bot.send_message(message.chat.id, settings, parse_mode='html')
+
+@bot.message_handler(commands=['gift'])
+def gift(message):
+    markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
+    man = types.KeyboardButton('Мужской')
+    woman = types.KeyboardButton('Женский')
+    markup.add(man, woman)
+    bot.send_message(message.chat.id, "Укажите пол человека, которому вы хотите найти идеальный подарок", reply_markup=markup)
+
+@bot.message_handler()
+def get_user_text(message):
+        if message.text =="Мужской":
+            bot.send_message(message.chat.id, "Укажите возраст человека, которому вы хотите найти идеальный подарок", parse_mode='html')
+        elif message.text == "Женский":
+           bot.send_message(message.chat.id, "Укажите возраст человека, которому вы хотите найти идеальный подарок", parse_mode='html')
+
+@bot.message_handler(commands=['website'])
+def website(message):
+    markup = types.InlineKeyboardMarkup()
+    markup.add(types.InlineKeyboardButton("Ну хуй пизда", url="https://tfprus.ru"))
+
+    bot.send_message(message.chat.id, "Шо ты пишешь дядя?", reply_markup=markup)
+
+
+
+bot.polling(none_stop=True)
