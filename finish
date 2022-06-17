@@ -1,0 +1,40 @@
+import telebot
+from telebot import types
+from transformers import pipeline
+bot = telebot.TeleBot('5309891451:AAGj04W4O3aBVEBqgW-GgWaAfOm66ncucTo')
+
+@bot.message_handler(commands=['start'])
+def start(message):
+    mess = 'Приветствуем вас в Smart Gift Bot, если вы хотите подарить что-то своему другу, родственнику, знакомому, ' \
+           'но не знаете что, тогда вы попали по адресу,чтобы начать выбор подарка с помощью  нейросети введите в ' \
+          'чат: /help - помощь /settings -настройки '
+    bot.send_message(message.chat.id, mess, parse_mode='html')
+    markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
+    gift = types.KeyboardButton('Что подарить?')
+    markup.add(gift)
+    bot.send_message(message.chat.id, "Для того чтобы перейти к выбору подарка, нажмите на кнопку", reply_markup=markup)
+@bot.message_handler(commands=['help'])
+def help(message):
+    help = 'Приветствуем вас в Smart Gift Bot, если вдруг у вас появились какие-то дополнительные вопросы по нашему проекту, вам следует написать нам на почту: ryt999@mail.ru'
+    bot.send_message(message.chat.id, help, parse_mode='html')
+@bot.message_handler(commands=['settings'])
+def settings(message):
+    settings = 'Приветствуем вас в Smart Gift Bot, если вдруг у вас появились какие-то дополнительные вопросы по нашему проекту, вам следует написать нам на почту: ryt999@mail.ru'
+    bot.send_message(message.chat.id, settings, parse_mode='html')
+@bot.message_handler(content_types=['text'])
+def after_text(message):
+    if message.text == "Что подарить?":
+        msg = bot.send_message(message.from_user.id, 'Напишите кому хотите сделать подарок, в формате пол, увлечение, возраст. Например: мужчине спортсмену 19 лет. Ответ нейросети будет находится на 2 строчке.')
+        bot.register_next_step_handler(msg, after_text_2)
+def after_text_2(message):
+  generator = pipeline('text-generation', model="sberbank-ai/rugpt3large_based_on_gpt2")
+  results = generator("Что подарить " + message.text + " ?", max_length=22)
+  generated_text = results[0]['generated_text']
+  bot.send_message(message.from_user.id, generated_text + '\nДля того чтобы вернуться в начало и выбрать новый подарок введите: /start')
+
+  markup = types.ReplyKeyboardMarkup()
+  like = types.KeyboardButton('')
+  dizlike = types.KeyboardButton('')
+  markup.add(like, dizlike)
+  bot.send_message(message.chat.id, "Оцените ответ нейросети", reply_markup=markup)
+bot.polling(none_stop=True)
